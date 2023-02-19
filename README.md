@@ -1,3 +1,4 @@
 # GitOps-ArgoCD
 
-This is read me 
+This repository is to dedicated for Continuous deployment using ArgoCD. 
+Please check individual directories for scenarios.  
