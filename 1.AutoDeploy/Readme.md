@@ -24,7 +24,7 @@ Windows:
 ```
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}"  
 ```
-Decode the encoded admin user password from above step using any online tools.  
+Decode the encoded admin user's base64 password from above output using any online tools. [Example](https://www.base64decode.org/)  
 
 4. Expose ArgoCD service to the external world.  
 If using cloud based K8S:  
