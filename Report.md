@@ -1,8 +1,9 @@
 # Introduction
 
-Troubleshooting can be divided into two parts. 
-1. At K8S Cluster level
-2. Applications level
+Troubleshooting can be divided into mainly two levels.  
+
+1. At K8S Cluster level  
+2. Applications level  
 
 # Troubleshooting Cluster
 
