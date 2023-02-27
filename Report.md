@@ -274,8 +274,29 @@ Migrate manifests and API clients to use the **batch/v1** API version, available
 Example:  
 ```  
 apiVersion: batch/v1
-kind: Job
+kind: CronJob
 ```  
+7. cattle-system-cattle-cluster-agent-547cb64d75-w2s9v.log:  
+
+command used **kubectl logs -f -n cattle-system cattle-cluster-agent-547cb64d75-w2s9v**  
+
+```  
+time="2023-01-12T15:20:45Z" level=info msg="NotBefore: 2021-12-23 11:28:50 +0000 UTC"
+time="2023-01-12T15:20:45Z" level=info msg="NotAfter: 2022-12-23 11:28:50 +0000 UTC"
+time="2023-01-12T15:20:45Z" level=info msg="SignatureAlgorithm: SHA256-RSA"
+time="2023-01-12T15:20:45Z" level=info msg="PublicKeyAlgorithm: RSA"
+time="2023-01-12T15:20:45Z" level=fatal msg="Server certificate is not valid, please check if the host has the correct time configured and if the server certificate has a notAfter date and time in the future. Certificate information is displayed above. error: Get \"https://rancher.iceye.edge\": x509: certificate has expired or is not yet valid: current time 2023-01-12T15:20:45Z is after 2022-12-23T11:28:50Z"
+```  
+
+current time 2023-01-12T15:20:45Z is after 2022-12-23T11:28:50Z"   ==> It shows certificate is expired.  
+
+kubeadm certs check-expiration   ==> Check valididy of all certs
+
+kubeadm certs renew  ==> Renew all CERTs managed by kubeadm.  
+
+If CERTs signed/managed by external vendors, Rotate accordingly.  
+
+
 
 
 
