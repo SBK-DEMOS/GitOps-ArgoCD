@@ -68,12 +68,12 @@ kubectl get --raw='/readyz?verbose'
    Pods in Deployment are managed by Replicaset. There should be same number of PODs available as shown by replicaset.
    Run "kubectl get pods" to see the list of pods and their details.  
    Few other commands for Debugging pods :  
-   **kubectl describe pods ${POD_NAME} -n ${namespace}**  ==> Gives full details of POD(configuration,status,events)  
-   **kubectl get pod ${POD_NAME} -n ${namespace} -o yaml/json** ==> Save pod configuration to a local file.  
-   **kubectl get events -n ${namespace}**  ==> Check systemwide events related to POD's namespace.  
-   **kubectl logs ${PODNAME} -c ${CONTAINERNAME} -n ${namespace}** ==> To look at the logs of affected container.  
-   **kubectl logs --previous ${POD_NAME} -c ${CONTAINERNAME} -n ${namespace}**  ==> To check previous container's crash log.   
-   **kubectl exec ${PODNAME} -c ${CONTAINERNAME} -- ${CMD} ${ARG1}**    ==> To run any bash commands in container.  
+   **kubectl describe pods POD-NAME -n namespace**  ==> Gives full details of POD(configuration,status,events)  
+   **kubectl get pod POD-NAME -n namespace -o yaml/json** ==> Save pod configuration to a local file.  
+   **kubectl get events -n namespace**  ==> Check systemwide events related to POD's namespace.  
+   **kubectl logs POD-NAME -c CONTAINER-NAME -n namespace** ==> To look at the logs of affected container.  
+   **kubectl logs --previous POD_NAME -c CONTAINER-NAME -n namespace**  ==> To check previous container's crash log.   
+   **kubectl exec PODNAME -c CONTAINER-NAME -- CMD ARG1**    ==> To run any bash commands in container.  
 
 4. Debugging Services:  Services group PODs using labels. Selector of service should match the POD label.  
    Few commands :  
@@ -90,7 +90,7 @@ kubectl get --raw='/readyz?verbose'
 1. mission-control-alpha-production.log :  
    Command used **kubectl describe deployment -n mission-control-alpha-production input-generator**  
    
-   Replicas:               1 desired | 1 updated | 1 total | 0 available | 1 unavailable     ==> Indicates that desired POD is not available
+   Replicas:               1 desired | 1 updated | 1 total | 0 available | **1 unavailable**    ==> Indicates that desired POD is not available
    
 ```  
    Conditions:
@@ -112,16 +112,191 @@ check replicaset status and pod status **kubectl describe pod $pod-name -n missi
    **Troubleshooting commands/steps:**  
        **kubectl get deploy -n mission-control-alpha-production input-generator**            ==> Check under READY,AVAILABLE,AGE  
        **kubectl get rs input-generator-6bb9f97576 -n mission-control-alpha-production**  ==> Get the name of pods  
-       **kubectl -n mission-control-alpha-production describe pod ${pod-name}**   ==> check Status,State,Node-Selectors,Tolerations,Events for any clue  
-       **kubectl logs ${POD_NAME} -c ${CONTAINER_NAME} -n mission-control-alpha-production**  ==> Check if any errors in logs  
+       **kubectl -n mission-control-alpha-production describe pod ${pod-name}**   ==> check Status,State,Node-Selectors,Tolerations,Events for any clue   
+       **kubectl logs POD_NAME -c CONTAINER_NAME -n mission-control-alpha-production**  ==> Check if any errors in logs  
        **kubectl get events -n mission-control-alpha-production**   ==> Check all the events related to APP namespace.  
        **kubectl get events --sort-by=.metadata.creationTimestamp**      ==> Check clusterwide events order by timestamp  
 	 
    **systemctl status kubelet** or **ps aux | grep kubelet**      ==> Check if kubelet is up and running  
-   **journalctl -xeu kubelet** 				==> Check kubelete logs for any  
+   **journalctl -xeu kubelet** 				==> Check kubelete logs for any errors.  
 	 
-   
-   
+   If POD description shows below Event, wait for few mins for CNI to be UP.  
+```   
+ Events:
+  Type     Reason           Age                    From     Message
+  ----     ------           ----                   ----     -------
+  Warning  NetworkNotReady  20h (x2 over 20h)      kubelet  network is not ready: container runtime network not ready: NetworkReady=false reason:NetworkPluginNotReady message:docker: network plugin is not ready: cni config uninitialized  
+```  
+
+2. telemetry-api.log :  
+```  
+   kubectl describe deployment telemetry-api -n telemetry-mars-production  
+```  
+Replicas:   1 desired | 1 updated | 1 total | 1 available | 0 unavailable    ==> Indicates APP is UP and running.  
+
+```  
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   telemetry-api-79d4799bff (1/1 replicas created)
+Events:          <none>
+
+```  
+The above outputs indicate APP pods are self-healed.  
+
+just check and confirm using **kubectl describe pod PODNAME -n telemetry-mars-production** , check at Events section.  
+
+
+3. telemetry-beacon-listener.log:  
+
+```  
+   kubectl describe deployment beacon-listener -n telemetry-mars-production  
+```  
+Replicas:   1 desired | 1 updated | 1 total | 1 available | 0 unavailable    ==> Indicates APP is UP and running.  
+
+```  
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Progressing    True    NewReplicaSetAvailable
+  Available      True    MinimumReplicasAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   beacon-listener-8495cbbb94 (1/1 replicas created)
+Events:          <none>
+
+```  
+The above outputs indicate APP pods are self-healed.  
+
+just check and confirm using **kubectl describe pod PODNAME -n telemetry-mars-production** , check at Events section.  
+
+
+4. telemetry-beacon-listener-8495cbbb94-5d7pm.log:  
+   Command **kubectl describe pod beacon-listener-8495cbbb94-5d7pm -n telemetry-mars-production**   
+
+```  
+Status:         Failed
+Reason:         Evicted
+Message:        The node was low on resource: ephemeral-storage. Container istio-proxy was using 120Ki, which exceeds its request of 0. Container beacon-listener was using 316Ki, which exceeds its request of 0.  
+```  
+
+Reason: Pods are being evicted and are getting an ephemeral storage error.  
+
+Solution:  Define ResourceQuota or Limit range or at resources section of Pod spec.  
+
+Example:
+```  
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default-resource-quotas
+  namespace: my-application-namespace
+spec:
+  hard:
+    limits.ephemeral-storage: 2Mi
+    requests.ephemeral-storage: 1Mi
+    ...
+
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: default-limit-ranges
+  namespace: my-application-namespace
+spec:
+  limits:
+  - default:
+      cpu: 100m
+      memory: 128Mi
+      ephemeral-storage: "2Mi"
+    defaultRequest:
+      cpu: 25m
+      memory: 64Mi
+      ephemeral-storage: "1Mi" 
+   type: Container
+```  
+
+5. cattle-system-cattle-cluster-agent.log:  
+
+Command **kubectl describe deployment cattle-cluster-agent -n cattle-system **
+
+```  
+Selector:               app=cattle-cluster-agent
+Replicas:               2 desired | 2 updated | 2 total | 1 available | 1 unavailable
+---
+
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Progressing    True    NewReplicaSetAvailable
+  Available      False   MinimumReplicasUnavailable
+OldReplicaSets:  <none>
+NewReplicaSet:   cattle-cluster-agent-547cb64d75 (2/2 replicas created)
+Events:          <none>
+
+```  
+From the above output we can understand that pods under cattle-cluster-agent-547cb64d75 are Unavailable.  
+
+kubectl get rs cattle-cluster-agent-547cb64d75 -n cattle-system    ==> Get the 
+kubectl get pods -n cattle-system -l app=cattle-cluster-agent      ==> Get the details of pods with label app=cattle-cluster-agent  
+
+kubectl get logs -f PODNAME                                      ==> Check the logs of POD
+kubectl logs -f -n cattle-system cattle-cluster-agent-547cb64d75-5h7Ih
+
+6. cattle-system-cattle-cluster-agent-547cb64d75-5h7Ih.log:  
+
+Command **kubectl logs -f -n cattle-system cattle-cluster-agent-547cb64d75-5h7Ih**  
+
+```  
+W0110 05:46:13.543408      56 warnings.go:80] policy/v1beta1 PodSecurityPolicy is deprecated in v1.21+, unavailable in v1.25+  
+W0112 15:12:22.287473      56 warnings.go:80] policy/v1beta1 PodSecurityPolicy is deprecated in v1.21+, unavailable in v1.25+
+W0112 15:20:33.289336      56 warnings.go:80] policy/v1beta1 PodSecurityPolicy is deprecated in v1.21+, unavailable in v1.25+
+
+```  
+
+Solution:  
+PodSecurityPolicy is deprecated, use [Pod Security Standards](https://kubernetes.io/docs/concepts/security/pod-security-standards/).    
+
+
+```  
+W0112 15:11:52.330069      56 warnings.go:80] batch/v1beta1 CronJob is deprecated in v1.21+, unavailable in v1.25+; use batch/v1 CronJob
+W0112 15:21:10.331648      56 warnings.go:80] batch/v1beta1 CronJob is deprecated in v1.21+, unavailable in v1.25+; use batch/v1 CronJob
+```  
+
+Solution:  
+**batch/v1beta1** API version of CronJob is deprecated. 
+Migrate manifests and API clients to use the **batch/v1** API version, available since v1.21.  
+
+**kubectl get job JOBNAME -o yaml**   ==> Get the Job configuration in yaml and modify **apiVersion: batch/v1beta1** to **apiVersion: batch/v1**
+
+Example:  
+```  
+apiVersion: batch/v1
+kind: Job
+```  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 							 
 							
   
