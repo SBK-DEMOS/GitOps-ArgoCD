@@ -291,11 +291,13 @@ time="2023-01-12T15:20:45Z" level=fatal msg="Server certificate is not valid, pl
 
 current time 2023-01-12T15:20:45Z is after 2022-12-23T11:28:50Z"   ==> It shows certificate is expired.  
 
-kubeadm certs check-expiration   ==> Check valididy of all certs
+**kubeadm certs check-expiration**   ==> Check valididy of all certs
 
-kubeadm certs renew  ==> Renew all CERTs managed by kubeadm.  
+Backup CERTs and config files.  
 
-If CERTs signed/managed by external vendors, Rotate accordingly.  
+**kubeadm certs renew all**     ==> Renew all CERTs managed by kubeadm.  
+
+Restart control plane components.  If CERTs signed/managed by external vendors, Rotate accordingly.  
 
 
 
