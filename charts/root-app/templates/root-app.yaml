@@ -5,14 +5,14 @@ metadata:
   finalizers:
   - resources-finalizer.argocd.argoproj.io
 spec:
-  project: default
+  project: sbk-proj1
   source:
     repoURL: https://github.com/SBK-DEMOS/GitOps-ArgoCD.git
     path: charts/root-app/
     targetRevision: HEAD
   destination:
     server: https://kubernetes.default.svc
-    namespace: default
+    namespace: argo-ns
   syncPolicy:
     automated:
       selfHeal: true
