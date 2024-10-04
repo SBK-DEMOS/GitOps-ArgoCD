@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: crossplane-system-crds
+spec:
+  project: public-infra
+  source:
+    repoURL: https://github.com/SBK-DEMOS/GitOps-ArgoCD.git
+    targetRevision: HEAD
+    path: east/crossplane-system/crds
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  # Sync policy
+  syncPolicy:
+    automated: {}
