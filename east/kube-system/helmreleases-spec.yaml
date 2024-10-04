@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-system-helmreleases
+spec:
+  project: public-infra
+  source:
+    repoURL: https://github.com/SBK-DEMOS/GitOps-ArgoCD.git
+    targetRevision: HEAD
+    path: east/kube-system/helmreleases
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  # Sync policy
+  syncPolicy:
+    automated: {}
