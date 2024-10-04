@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: crossplane-providerconfig
+  annotations:
+    
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: public-infra
+  source:
+    repoURL: https://github.com/SBK-DEMOS/GitOps-ArgoCD.git
+    targetRevision: HEAD
+    path: east1/crossplane-system/crds/crossplane-providerconfig
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  # Sync policy
+  syncPolicy:
+    automated: {}
