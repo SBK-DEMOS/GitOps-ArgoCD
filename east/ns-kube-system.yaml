@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ns-kube-system
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: dbnd-public-infra
+  source:
+    repoURL: https://github.com/SBK-DEMOS/GitOps-ArgoCD.git
+    targetRevision: HEAD
+    path: east/kube-system
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  # Sync policy
+  syncPolicy:
+    automated: {}
