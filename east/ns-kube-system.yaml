@@ -8,7 +8,7 @@ metadata:
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: dbnd-public-infra
+  project: public-infra
   source:
     repoURL: https://github.com/SBK-DEMOS/GitOps-ArgoCD.git
     targetRevision: HEAD
