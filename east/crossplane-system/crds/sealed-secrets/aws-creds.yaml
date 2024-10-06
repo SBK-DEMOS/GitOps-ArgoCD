@@ -1,15 +1,22 @@
-apiVersion: bitnami.com/v1alpha1
-kind: SealedSecret
-metadata:
-  creationTimestamp: null
-  name: aws-creds
-  namespace: crossplane-system
-spec:
-  encryptedData:
-    creds: <replace encrypted data>
-  template:
-    metadata:
-      creationTimestamp: null
-      name: aws-creds
-      namespace: crossplane-system
-    type: Opaque
+{
+  "kind": "SealedSecret",
+  "apiVersion": "bitnami.com/v1alpha1",
+  "metadata": {
+    "name": "aws-creds",
+    "namespace": "crossplane-system",
+    "creationTimestamp": null
+  },
+  "spec": {
+    "template": {
+      "metadata": {
+        "name": "aws-creds",
+        "namespace": "crossplane-system",
+        "creationTimestamp": null
+      }
+    },
+    "encryptedData": {
+      "access-key-id": "AgB6ml3O8NljTVI/QyWVOEzB2YtGDWN2qdcyzOhHdGt1r9GcfSqukOFUaYZDG4/3jGv2xYbu9Hq8Wchek7RLGO8MGBlL63pA+/GR2BSChOOuGizd+LGjziT/VcxiY0b+XwfstTKTrZUMRvh3K2HpiEtgooq6dClUfECQTdMMnLBtZi5NiK02Ca7pYfNaQjEcERSOZ1s1HOEYGAMXcDF5A0E72Q+JWpiqxmnv5tMalrpaYKHpdIAAU2wHnGUghJybtYuwlAXbE6iwlNcdeflgU06GZVudwyQxzRxfsGj5ob0WB097Cq2beviC1Q2+O6Whm3CmpJLJdvkoQ5BKfv8Orc5GQCw4bwt7JWXRIb9dpdmy+O89cIz+uvvxZlfRdsTuWuXZ6Dud0gvbxVPxrQeDhkRdam88S5m2wLD+NRFpndDWfuvsVbYdHY+jxTTN9CjM/0fM3mYbh3pSgdUOY5RnOZ+qRCcOrhPomUa8/FFvDJG4EzUfX6yUxN7YR8m0oURrr3lMKy3E8bCFj7m49XRP3WsJiWLHM2ajepj2E9lVN2Fldn3gZk9ip4ZBkFAKuWVVONqrmCRC2Qb9pAFRWUVW0UFmYo71KBHsl6dKdfBE8hjGkvHwRCyrJ1lSdF03gObFBASibb3tDiPFd5xp/BYyz4al4cKaH5AK6vsasaQRPg2NDWcUFKq5wULU2yhDvqejH1xHCYRL7IjOGMKBPeuyRJdc0eHc0g==",
+      "secret-access-key": "AgCWa95KPVvCkHTRGtHt//FSKlvwkjFaPx1e7qMZFBh0ZRrPpLUbdjV1tjp+jjvKZtert4/cdYidmX4lVWl1E2mB8SV5IRIuOj2wJw9MSUlb7sZCdADwMfkR/VYxYuq5or9hRNvTyxqP7Vwxr1TBTocN+YA0M/mEOn3FS6CjG0kIwXJJ8OMh0V/w6WYBo72yluYWre8L2t043syk2uOq0HUJcpf9CJq82DeLvNt1d3RWNwckyYp+/73iI+KmLztcUlYwFNCanIxHyc0utad9x8lVozlXl1GTCt7UIETD/QOllAlPobEK99WW0Wbx5rboAH4IHdAsUa0RQxL2RlW5azDYIVufuFQR9HQub48M6KPjoqYWqIQb/OXdbohgij3gxaS111m6nBxsvqtZF5S7l6WJ25S34i1mibRSaVVDNDPNxujDOP5in8WaKHf1gLG+pGV1y8Kw+z8A8ArergJzI2HFTms2549r3emz4o8B8IWqZJIMOqW81y0o2avaX/CgxFMVTCuEV4KqfH+y9PXj7xtJ0QHIX0ULYq9VY7pf15EH/TjEOOt0M4BIy/fmjVqxjvCUc/EIZjP6eTxGD+ZfaHjRHFaFn2zUHje0k98pMIzC8eq8xQg1Io980ua6DloXLJ1Un4T0sylTgWIpOgTDnAAEyYsIvc0jUI9uAGERW7nmVqz+3m7h40F0EQUz27EACTyoKZJ+gCQVRoXmrMvRosncuvgM45rnN0MJqAP0SncnvSJ2zmsfShGy"
+    }
+  }
+}
