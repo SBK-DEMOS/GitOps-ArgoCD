@@ -1,0 +1,53 @@
+
+
+https://medium.com/@ajaysnair1122/using-aws-eks-with-ec2-spot-instance-elastic-kubernetes-service-ab647e0af4c6
+
+https://www.arthurkoziel.com/setting-up-argocd-with-helm/
+
+https://www.env0.com/blog/argocd-with-helm-charts
+
+https://www.arthurkoziel.com/encrypting-k8s-secrets-with-sealed-secrets/
+
+
+Install ArgoCD 
+
+kubectl create ns argocd
+
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+
+kubectl port-forward svc/argocd-server -n argocd 8005:443
+
+
+1.Install Sealed secret in K8S cluster
+
+kubectl get pods -n kube-system | grep sealed-secrets
+
+2. Install the kubeseal CLI for your host-OS
+
+wget https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.13.1/kubeseal-linux-amd64 -O kubeseal
+sudo install -m 755 kubeseal /usr/local/bin/kubeseal
+or 
+curl -LO https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.26.1/kubeseal-0.26.1-linux-amd64.tar.gz
+tar -xzvf kubeseal-0.26.1-linux-amd64.tar.gz
+
+
+mv kubeseal /usr/bin/
+kubeseal --version
+
+3. Create a secret for AWS creds 
+
+kubectl create secret generic aws-creds --from-literal=aws-creds=bala123 --dry-run=client > aws-creds.yaml
+
+
+4. Get the public key from the Sealed Secrets controller.
+kubeseal --fetch-cert --controller-name=sealed-secrets-controller --controller-namespace=kube-system > mypublickey.pem
+
+5. you can directly use this public key to generate a sealed secret. Example of the command below:
+
+kubeseal --controller-name=sealed-secrets --controller-namespace=kube-system --format yaml < aws-creds.yaml > aws-creds-sealedsecret.yaml
+	
+	
+6. Apply the sealeed secret or push to Github
+kubectl apply -f sealed-secret.yaml
